@@ -68,16 +68,22 @@ class Post_View_Count {
         }
     }
 
-    // Shortcode to display view count
+
+    // Shortcode to display view count with style
     public function view_count_shortcode($atts) {
         $atts = shortcode_atts(array(
             'post_id' => get_the_ID(),
         ), $atts);
 
         $view_count = get_post_meta($atts['post_id'], 'post_view_count', true);
-        return $view_count ? $view_count : '0';
+        
+        // Apply style to the output
+        $output = '<span class="post-view-count">';
+        $output .= 'View Count: <strong>' . ($view_count ? $view_count : '0') . '</strong>';
+        $output .= '</span>';
+
+        return $output;
     }
 }
 
 new Post_View_Count();
-?>
