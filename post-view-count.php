@@ -6,70 +6,78 @@ Version: 1.0
 Author: Your Name
 */
 
-// Function to increment view count
-function pvc_increment_view_count($post_id) {
-    $current_views = get_post_meta($post_id, 'post_view_count', true);
-    $new_views = intval($current_views) + 1;
-    update_post_meta($post_id, 'post_view_count', $new_views);
-}
+class Post_View_Count {
 
-// Hook into WordPress to increment view count when post is viewed
-function pvc_track_post_views() {
-    if (is_single()) {
-        global $post;
-        if ($post) {
-            pvc_increment_view_count($post->ID);
+    public function __construct() {
+        add_action('wp', array($this, 'track_post_views'));
+        add_filter('manage_posts_columns', array($this, 'add_view_count_column'));
+        add_action('manage_posts_custom_column', array($this, 'display_view_count_column'), 10, 2);
+        add_filter('manage_edit-post_sortable_columns', array($this, 'make_view_count_column_sortable'));
+        add_action('pre_get_posts', array($this, 'sort_posts_by_view_count'));
+        add_shortcode('post_view_count', array($this, 'view_count_shortcode'));
+    }
+
+    // Function to increment view count
+    public function increment_view_count($post_id) {
+        $current_views = get_post_meta($post_id, 'post_view_count', true);
+        $new_views = intval($current_views) + 1;
+        update_post_meta($post_id, 'post_view_count', $new_views);
+    }
+
+    // Hook into WordPress to increment view count when post is viewed
+    public function track_post_views() {
+        if (is_single()) {
+            global $post;
+            if ($post) {
+                $this->increment_view_count($post->ID);
+            }
         }
     }
-}
-add_action('wp', 'pvc_track_post_views');
 
-// Function to add view count column to admin post list
-function pvc_add_view_count_column($columns) {
-    $columns['post_view_count'] = 'View Count';
-    return $columns;
-}
-add_filter('manage_posts_columns', 'pvc_add_view_count_column');
-
-// Function to display view count in admin post list
-function pvc_display_view_count_column($column, $post_id) {
-    if ($column === 'post_view_count') {
-        $view_count = get_post_meta($post_id, 'post_view_count', true);
-        echo $view_count ? $view_count : '0';
-    }
-}
-add_action('manage_posts_custom_column', 'pvc_display_view_count_column', 10, 2);
-
-// Make the view count column sortable
-function pvc_make_view_count_column_sortable($columns) {
-    $columns['post_view_count'] = 'post_view_count';
-    return $columns;
-}
-add_filter('manage_edit-post_sortable_columns', 'pvc_make_view_count_column_sortable');
-
-// Function to handle sorting by view count
-function pvc_sort_posts_by_view_count($query) {
-    if (!is_admin()) {
-        return;
+    // Function to add view count column to admin post list
+    public function add_view_count_column($columns) {
+        $columns['post_view_count'] = 'View Count';
+        return $columns;
     }
 
-    $orderby = $query->get('orderby');
+    // Function to display view count in admin post list
+    public function display_view_count_column($column, $post_id) {
+        if ($column === 'post_view_count') {
+            $view_count = get_post_meta($post_id, 'post_view_count', true);
+            echo $view_count ? $view_count : '0';
+        }
+    }
 
-    if ($orderby === 'post_view_count') {
-        $query->set('meta_key', 'post_view_count');
-        $query->set('orderby', 'meta_value_num');
+    // Make the view count column sortable
+    public function make_view_count_column_sortable($columns) {
+        $columns['post_view_count'] = 'post_view_count';
+        return $columns;
+    }
+
+    // Function to handle sorting by view count
+    public function sort_posts_by_view_count($query) {
+        if (!is_admin()) {
+            return;
+        }
+
+        $orderby = $query->get('orderby');
+
+        if ($orderby === 'post_view_count') {
+            $query->set('meta_key', 'post_view_count');
+            $query->set('orderby', 'meta_value_num');
+        }
+    }
+
+    // Shortcode to display view count
+    public function view_count_shortcode($atts) {
+        $atts = shortcode_atts(array(
+            'post_id' => get_the_ID(),
+        ), $atts);
+
+        $view_count = get_post_meta($atts['post_id'], 'post_view_count', true);
+        return $view_count ? $view_count : '0';
     }
 }
-add_action('pre_get_posts', 'pvc_sort_posts_by_view_count');
 
-// Shortcode to display view count
-function pvc_view_count_shortcode($atts) {
-    $atts = shortcode_atts(array(
-        'post_id' => get_the_ID(),
-    ), $atts);
-
-    $view_count = get_post_meta($atts['post_id'], 'post_view_count', true);
-    return $view_count ? $view_count : '0';
-}
-add_shortcode('post_view_count', 'pvc_view_count_shortcode');
+new Post_View_Count();
 ?>
