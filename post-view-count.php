@@ -1,20 +1,39 @@
 <?php
 /*
-Plugin Name: Post View Count
-Description: Track and display post view count.
-Version: 1.0
-Author: Your Name
-*/
+ * Plugin Name:       Post View Count
+ * Plugin URI:        https://gaziakter.com/plugins/post-view-count/
+ * Description:       Handle the basics with this plugin.
+ * Version:           1.10.3
+ * Requires at least: 5.2
+ * Requires PHP:      7.2
+ * Author:            Gazi Akter
+ * Author URI:        https://gaziakter.com/
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       view-count
+ * Domain Path:       /languages
+ */
+
+ if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
 
 class Post_View_Count {
 
     public function __construct() {
+        add_action( 'init', array($this, 'view-count') );
         add_action('wp', array($this, 'track_post_views'));
         add_filter('manage_posts_columns', array($this, 'add_view_count_column'));
         add_action('manage_posts_custom_column', array($this, 'display_view_count_column'), 10, 2);
         add_filter('manage_edit-post_sortable_columns', array($this, 'make_view_count_column_sortable'));
         add_action('pre_get_posts', array($this, 'sort_posts_by_view_count'));
         add_shortcode('post_view_count', array($this, 'view_count_shortcode'));
+    }
+
+
+    // Load textdomain
+    public function view_count_load_textdomain() {
+        load_theme_textdomain( 'view-count', plugin_dir_path( __FILE__ ) . '/languages' );
     }
 
     // Function to increment view count
