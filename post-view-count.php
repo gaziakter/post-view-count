@@ -21,7 +21,7 @@
 class Post_View_Count {
 
     public function __construct() {
-        add_action( 'init', array($this, 'view-count') );
+        add_action( 'init', array($this, 'view_count_load_textdomain') );
         add_action('wp', array($this, 'track_post_views'));
         add_filter('manage_posts_columns', array($this, 'add_view_count_column'));
         add_action('manage_posts_custom_column', array($this, 'display_view_count_column'), 10, 2);
@@ -98,7 +98,7 @@ class Post_View_Count {
         
         // Apply style to the output
         $output = '<span class="post-view-count">';
-        $output .= 'View Count: <strong>' . ($view_count ? $view_count : '0') . '</strong>';
+        $output .= 'Post Views: <strong>' . ($view_count ? $view_count : '0') . '</strong>';
         $output .= '</span>';
 
         return $output;
