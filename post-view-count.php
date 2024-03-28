@@ -28,6 +28,8 @@ class Post_View_Count {
         add_filter('manage_edit-post_sortable_columns', array($this, 'make_view_count_column_sortable'));
         add_action('pre_get_posts', array($this, 'sort_posts_by_view_count'));
         add_shortcode('post_view_count', array($this, 'view_count_shortcode'));
+        add_action( 'wp_enqueue_scripts', array($this, 'view_count_wp_enqueue_style') );
+
     }
 
 
@@ -98,10 +100,16 @@ class Post_View_Count {
         
         // Apply style to the output
         $output = '<span class="post-view-count">';
-        $output .= 'Post Views: <strong>' . ($view_count ? $view_count : '0') . '</strong>';
+        $output .= '<strong>Post Views </strong> <br>';
+        $output .= 'Total Views: <strong>' . ($view_count ? $view_count : '0') . '</strong>';
         $output .= '</span>';
 
         return $output;
+    }
+
+    function view_count_wp_enqueue_style(){
+        wp_enqueue_style( 'style', plugin_dir_url( __FILE__ ) . "assets/css/style.css", null, time() );
+
     }
 }
 

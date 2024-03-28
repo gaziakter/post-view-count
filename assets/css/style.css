@@ -1,6 +1,8 @@
-.post-view-count {
-    background-color: #f1f1f1;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 14px;
+span.post-view-count {
+    width: 120px;
+    height: 120px;
+    display: block;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 25px;
+    border-radius: 10px;
 }
